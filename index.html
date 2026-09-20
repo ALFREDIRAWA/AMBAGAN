@@ -8,447 +8,203 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --paper:#FBF6EC;
-    --paper-2:#F3ECDC;
-    --ink:#20261F;
-    --ink-soft:#5B6259;
-    --mango:#F2A93B;
-    --mango-ink:#3D2A08;
-    --sili:#C1440E;
-    --palay:#3E5C4E;
-    --palay-deep:#2A4034;
-    --line:#DCD3C0;
-    --white:#FFFDF8;
-    --danger-bg:#FBEAE1;
-    box-sizing:border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --paper:#1B1E1A;
-      --paper-2:#242822;
-      --ink:#F3EEE2;
-      --ink-soft:#B9BDB2;
-      --line:#3A3F37;
-      --white:#22261F;
-      --danger-bg:#3A241C;
-    }
-  }
-  :root[data-theme="dark"]{
-    --paper:#1B1E1A;
-    --paper-2:#242822;
-    --ink:#F3EEE2;
-    --ink-soft:#B9BDB2;
-    --line:#3A3F37;
-    --white:#22261F;
-    --danger-bg:#3A241C;
-  }
-  *{box-sizing:border-box;}
-  html,body{height:100%;}
-  html{scroll-padding-top: env(safe-area-inset-top, 0px);}
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Sora',system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
-  .app{
-    max-width:520px;
-    margin:0 auto;
-    min-height:100%;
-    padding:0 16px 40px;
-    position:relative;
-  }
-  /* HEADER */
-  header{
-    padding:22px 0 16px;
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:12px;
-    border-bottom:2px dashed var(--line);
-  }
-  .brand h1{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:26px;
-    font-weight:700;
-    margin:0 0 2px;
-    letter-spacing:-0.02em;
-  }
-  .brand p{
-    margin:0;
-    font-size:13px;
-    color:var(--ink-soft);
-    max-width:32ch;
-  }
-  .privacy-badge{
-    flex-shrink:0;
-    font-size:10.5px;
-    font-family:'IBM Plex Mono',monospace;
-    background:var(--palay);
-    color:#fff;
-    padding:6px 8px;
-    border-radius:6px;
-    line-height:1.35;
-    text-align:right;
-    max-width:110px;
-  }
-
-  /* SECTION LABEL */
-  .section{margin-top:26px;}
-  .section-head{
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    margin-bottom:10px;
-  }
-  .section-head h2{
-    font-size:15px;
-    margin:0;
-    font-weight:700;
-  }
-  .section-hint{
-    font-size:11.5px;
-    color:var(--ink-soft);
-  }
-
-  /* PEOPLE CHIPS */
-  .people-row{display:flex;flex-wrap:wrap;gap:8px;}
-  .chip{
-    display:flex;align-items:center;gap:6px;
-    background:var(--white);
-    border:1.5px solid var(--line);
-    padding:7px 6px 7px 12px;
-    border-radius:20px;
-    font-size:13.5px;
-    font-weight:600;
-  }
-  .chip.pwd{border-color:var(--sili); background:var(--danger-bg);}
-  .chip .tag{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:9.5px;
-    color:var(--sili);
-    font-weight:700;
-  }
-  .chip button{
-    border:none;background:var(--paper-2);
-    width:20px;height:20px;border-radius:50%;
-    cursor:pointer;color:var(--ink-soft);font-size:12px;
-    display:flex;align-items:center;justify-content:center;
-    line-height:1;
-  }
-  .add-person{
-    display:flex;gap:8px;margin-top:10px;
-  }
-  input[type=text], input[type=number]{
-    font-family:'Sora',sans-serif;
-    border:1.5px solid var(--line);
-    background:var(--white);
-    color:var(--ink);
-    border-radius:10px;
-    padding:10px 12px;
-    font-size:14.5px;
-    width:100%;
-  }
-  input:focus{outline:2px solid var(--palay); outline-offset:1px;}
-  .btn{
-    font-family:'Sora',sans-serif;
-    font-weight:700;
-    font-size:13.5px;
-    border:none;
-    border-radius:10px;
-    padding:10px 16px;
-    cursor:pointer;
-    white-space:nowrap;
-  }
-  .btn-primary{background:var(--palay); color:#fff;}
-  .btn-primary:active{background:var(--palay-deep);}
-  .btn-mango{background:var(--mango); color:var(--mango-ink);}
-  .btn-ghost{background:transparent; border:1.5px solid var(--line); color:var(--ink);}
-  .btn-block{width:100%;}
-  .btn:disabled{opacity:.45; cursor:not-allowed;}
-
-  /* ITEMS */
-  .item-card{
-    background:var(--white);
-    border:1.5px solid var(--line);
-    border-radius:14px;
-    padding:12px 14px;
-    margin-bottom:10px;
-  }
-  .item-top{
-    display:flex; gap:10px; align-items:center; margin-bottom:10px;
-  }
-  .item-top input[type=text]{flex:1;}
-  .item-price{width:104px; flex-shrink:0;}
-  .item-remove{
-    flex-shrink:0;
-    border:none;background:none;color:var(--sili);
-    font-size:18px; cursor:pointer; padding:2px 4px;
-  }
-  .split-mode{
-    display:flex; gap:6px; margin-bottom:10px;
-  }
-  .mode-btn{
-    flex:1;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    font-weight:600;
-    padding:6px 4px;
-    border-radius:7px;
-    border:1.5px solid var(--line);
-    background:transparent;
-    color:var(--ink-soft);
-    cursor:pointer;
-  }
-  .mode-btn.active{
-    background:var(--ink); color:var(--paper); border-color:var(--ink);
-  }
-  .people-select{
-    display:flex; flex-wrap:wrap; gap:6px;
-  }
-  .pill{
-    font-size:12px;
-    padding:5px 10px;
-    border-radius:14px;
-    border:1.5px solid var(--line);
-    background:var(--paper-2);
-    color:var(--ink-soft);
-    cursor:pointer;
-    font-weight:600;
-  }
-  .pill.on{
-    background:var(--palay); color:#fff; border-color:var(--palay);
-  }
-  .empty-note{
-    font-size:13px; color:var(--ink-soft);
-    padding:16px; text-align:center;
-    border:1.5px dashed var(--line);
-    border-radius:12px;
-  }
-
-  /* OPTIONS */
-  .opt-row{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:12px 0;
-    border-bottom:1px solid var(--line);
-    gap:12px;
-  }
-  .opt-row:last-child{border-bottom:none;}
-  .opt-label{font-size:13.5px; font-weight:600;}
-  .opt-sub{font-size:11.5px; color:var(--ink-soft); font-weight:400; margin-top:2px;}
-  .switch{
-    position:relative; width:42px; height:24px; flex-shrink:0;
-  }
-  .switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer;}
-  .switch .track{
-    position:absolute; inset:0; background:var(--line); border-radius:14px; transition:background .15s;
-  }
-  .switch .thumb{
-    position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%;
-    background:#fff; transition:transform .15s; box-shadow:0 1px 2px rgba(0,0,0,.25);
-  }
-  .switch input:checked + .track{background:var(--palay);}
-  .switch input:checked + .track + .thumb{transform:translateX(18px);}
-  .num-inline{
-    width:70px; text-align:right; padding:7px 8px; font-family:'IBM Plex Mono',monospace;
-  }
-  select{
-    font-family:'Sora',sans-serif;
-    border:1.5px solid var(--line);
-    background:var(--white);
-    color:var(--ink);
-    border-radius:10px;
-    padding:7px 8px;
-    font-size:13px;
-  }
-  .pwd-list{margin-top:8px;}
-  .pwd-list .pill{margin:0 6px 6px 0;}
-
-  /* PAYMENT INFO */
-  .pay-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
-
-  /* RECEIPT */
-  .receipt-wrap{
-    margin-top:26px;
-  }
-  .receipt{
-    background:var(--white);
-    border:1.5px solid var(--line);
-    border-radius:14px 14px 0 0;
-    padding:20px 18px 16px;
-    font-family:'IBM Plex Mono',monospace;
-  }
-  .receipt-title{
-    text-align:center; font-size:15px; font-weight:700; margin:0 0 2px;
-    font-family:'Sora',sans-serif;
-  }
-  .receipt-sub{
-    text-align:center; font-size:11px; color:var(--ink-soft); margin:0 0 14px;
-  }
-  .receipt hr{
-    border:none; border-top:1.5px dashed var(--line); margin:12px 0;
-  }
-  .receipt-line{
-    display:flex; justify-content:space-between; font-size:12.5px; padding:2px 0;
-  }
-  .receipt-line.sub{color:var(--ink-soft); font-size:11.5px; padding-left:10px;}
-  .person-block{margin-bottom:12px;}
-  .person-name{
-    display:flex; justify-content:space-between;
-    font-weight:700; font-size:13.5px; margin-bottom:3px;
-  }
-  .person-name .amt{color:var(--palay-deep);}
-  .grand-total{
-    display:flex; justify-content:space-between;
-    font-size:16px; font-weight:700; margin-top:6px;
-  }
-  .perforation{
-    height:14px;
-    background:
-      radial-gradient(circle 7px at 0 0, transparent 7px, var(--paper) 7.5px) top left,
-      var(--white);
-    background-size:16px 16px;
-    background-repeat:repeat-x;
-    position:relative;
-    border-left:1.5px solid var(--line);
-    border-right:1.5px solid var(--line);
-  }
-  .receipt-actions{
-    display:flex; gap:8px; margin-top:14px;
-  }
-  .receipt-actions .btn{flex:1;}
-  canvas#exportCanvas{display:none;}
-  footer{
-    text-align:center; margin-top:30px; font-size:11.5px; color:var(--ink-soft);
-  }
-  footer a{color:var(--palay); text-decoration:none; font-weight:600;}
-  .toast{
-    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
-    background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:10px;
-    font-size:13px; opacity:0; transition:all .2s; pointer-events:none; z-index:50;
-    max-width:90%; text-align:center;
-  }
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+:root{
+  --paper:#f6f1e7; --paper-2:#ece4d5; --ink:#17221c; --ink-soft:#687269;
+  --mango:#f4ad3d; --mango-ink:#302005; --sili:#b94316; --palay:#245844;
+  --palay-deep:#173e31; --line:#d8cfbe; --white:#fffdf8; --danger-bg:#fae9df;
+  --shadow:0 18px 50px rgba(42,49,42,.10); --shadow-soft:0 6px 20px rgba(42,49,42,.07);
+  --radius:18px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--paper:#121713;--paper-2:#1d251f;--ink:#f4f0e6;--ink-soft:#aeb7ad;--line:#364139;--white:#1a211c;--danger-bg:#3b261d;--shadow:0 18px 50px rgba(0,0,0,.3);--shadow-soft:0 6px 20px rgba(0,0,0,.22);}
+}
+:root[data-theme="dark"]{--paper:#121713;--paper-2:#1d251f;--ink:#f4f0e6;--ink-soft:#aeb7ad;--line:#364139;--white:#1a211c;--danger-bg:#3b261d;--shadow:0 18px 50px rgba(0,0,0,.3);--shadow-soft:0 6px 20px rgba(0,0,0,.22);}
+*{box-sizing:border-box}
+html{min-height:100%;scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;min-height:100%;background:
+ radial-gradient(circle at 10% 0%,rgba(244,173,61,.12),transparent 30rem),
+ radial-gradient(circle at 100% 20%,rgba(36,88,68,.08),transparent 32rem),
+ var(--paper);color:var(--ink);font-family:'Sora',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input,select{font:inherit}
+button{touch-action:manipulation}
+.app{width:min(1180px,100%);margin:0 auto;padding:0 24px 56px}
+header{padding:28px 0 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:14px}
+.logo-mark{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:var(--palay);color:#fff;font:800 19px 'IBM Plex Mono',monospace;box-shadow:0 8px 20px rgba(36,88,68,.2)}
+.brand h1{font:800 29px/1 'IBM Plex Mono',monospace;letter-spacing:-.04em;margin:0 0 5px}
+.brand p{margin:0;font-size:13px;color:var(--ink-soft);max-width:54ch}
+.header-tools{display:flex;align-items:center;gap:8px}
+.privacy-badge{font:600 10.5px/1.35 'IBM Plex Mono',monospace;background:var(--white);color:var(--palay);border:1px solid var(--line);padding:8px 10px;border-radius:10px;white-space:nowrap}
+.icon-btn{width:38px;height:38px;border:1px solid var(--line);background:var(--white);color:var(--ink);border-radius:11px;cursor:pointer;box-shadow:var(--shadow-soft)}
+.workspace{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr);gap:26px;align-items:start}
+.editor{min-width:0}
+.section{margin-top:25px}
+.section:first-child{margin-top:24px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 0 10px}
+.section-head h2{font-size:15px;line-height:1.2;margin:0;font-weight:800;letter-spacing:-.01em}
+.section-hint{font-size:11.5px;color:var(--ink-soft)}
+.panel,.item-card{background:color-mix(in srgb,var(--white) 94%,transparent);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-soft)}
+.panel{padding:15px}
+.item-card{padding:15px;margin-bottom:10px}
+.people-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:7px;background:var(--white);border:1px solid var(--line);padding:8px 7px 8px 12px;border-radius:999px;font-size:13px;font-weight:700;box-shadow:0 2px 7px rgba(0,0,0,.035)}
+.chip.pwd{border-color:var(--sili);background:var(--danger-bg)}
+.chip .tag{font:800 9px 'IBM Plex Mono',monospace;color:var(--sili)}
+.chip button{border:0;background:var(--paper-2);width:21px;height:21px;border-radius:50%;cursor:pointer;color:var(--ink-soft);display:grid;place-items:center;padding:0}
+.add-person{display:flex;gap:8px;margin-top:10px}
+input[type=text],input[type=number],select{border:1px solid var(--line);background:var(--white);color:var(--ink);border-radius:11px;padding:11px 12px;font-size:14px;width:100%;min-height:42px}
+input[type=number]{font-family:'IBM Plex Mono',monospace}
+input:focus,select:focus{outline:3px solid color-mix(in srgb,var(--palay) 22%,transparent);border-color:var(--palay)}
+.btn{font-family:'Sora',sans-serif;font-weight:800;font-size:13px;border:0;border-radius:11px;padding:11px 15px;cursor:pointer;white-space:nowrap;min-height:42px;transition:transform .12s,filter .12s,box-shadow .12s}
+.btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--palay);color:#fff;box-shadow:0 7px 16px rgba(36,88,68,.18)}
+.btn-mango{background:var(--mango);color:var(--mango-ink);box-shadow:0 7px 16px rgba(244,173,61,.18)}
+.btn-ghost{background:var(--white);border:1px solid var(--line);color:var(--ink)}
+.btn-block{width:100%}.btn:disabled{opacity:.45;cursor:not-allowed}
+.item-top{display:grid;grid-template-columns:minmax(0,1fr) 118px 34px;gap:8px;align-items:center;margin-bottom:11px}
+.item-price{width:auto!important}
+.item-remove{width:34px;height:34px;border:0;background:transparent;color:var(--sili);font-size:18px;cursor:pointer;border-radius:9px}
+.item-remove:hover{background:var(--danger-bg)}
+.split-mode{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.mode-btn{font:700 10.5px 'IBM Plex Mono',monospace;padding:8px 5px;border-radius:9px;border:1px solid var(--line);background:var(--paper-2);color:var(--ink-soft);cursor:pointer}
+.mode-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);box-shadow:0 3px 8px rgba(0,0,0,.12)}
+.people-select{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:var(--paper-2);color:var(--ink-soft);cursor:pointer;font-weight:700}
+.pill.on{background:var(--palay);color:#fff;border-color:var(--palay)}
+.empty-note{font-size:12.5px;color:var(--ink-soft);padding:15px;text-align:center;border:1px dashed var(--line);border-radius:13px;background:var(--paper-2)}
+.opt-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line);gap:14px}
+.opt-row:last-child{border-bottom:0}
+.opt-label{font-size:13.5px;font-weight:800}.opt-sub{font-size:11px;color:var(--ink-soft);font-weight:400;margin-top:3px;line-height:1.45}
+.switch{position:relative;width:44px;height:26px;flex-shrink:0}
+.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.switch .track{position:absolute;inset:0;background:var(--line);border-radius:14px;transition:background .15s}
+.switch .thumb{position:absolute;top:4px;left:4px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch input:checked + .track{background:var(--palay)}.switch input:checked + .track + .thumb{transform:translateX(18px)}
+.num-inline{width:74px!important;text-align:right;padding:8px!important}
+.pwd-list{margin-top:9px}.pwd-list .pill{margin:0 5px 5px 0}
+.pay-grid{display:grid;grid-template-columns:170px 1fr;gap:8px}
+.price-mode{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0 3px}
+.checkbox-line{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink-soft)}
+.checkbox-line input{accent-color:var(--palay)}
+.receipt-wrap{position:sticky;top:18px;margin-top:24px}
+.receipt{background:var(--white);border:1px solid var(--line);border-radius:20px 20px 0 0;padding:25px 22px 20px;font-family:'IBM Plex Mono',monospace;box-shadow:var(--shadow)}
+.receipt-title{text-align:center;font-size:18px;font-weight:800;margin:0 0 4px;font-family:'Sora',sans-serif;letter-spacing:-.02em}
+.receipt-sub{text-align:center;font-size:10.5px;color:var(--ink-soft);margin:0 0 16px}
+.receipt hr{border:0;border-top:1px dashed var(--line);margin:14px 0}
+.receipt-line{display:flex;justify-content:space-between;gap:16px;font-size:12px;padding:3px 0}
+.receipt-line span:last-child{white-space:nowrap}
+.receipt-line.sub{color:var(--ink-soft);font-size:10.8px;padding-left:10px}
+.person-block{margin-bottom:14px}.person-name{display:flex;justify-content:space-between;gap:12px;font-weight:800;font-size:13px;margin-bottom:3px}.person-name span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis}.person-name .amt{color:var(--palay);white-space:nowrap}
+.grand-total{display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-top:7px}
+.total-badge{margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--paper-2);display:flex;justify-content:space-between;align-items:center;font:700 11px 'IBM Plex Mono',monospace;color:var(--ink-soft)}
+.total-badge strong{font-size:14px;color:var(--ink)}
+.perforation{height:15px;background:radial-gradient(circle 7px at 0 0,transparent 7px,var(--paper) 7.5px) top left,var(--white);background-size:16px 16px;background-repeat:repeat-x;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.receipt-actions{display:flex;gap:8px;margin-top:12px}.receipt-actions .btn{flex:1}
+canvas#exportCanvas{display:none}
+footer{text-align:center;margin-top:34px;font-size:11px;color:var(--ink-soft)}footer a{color:var(--palay);text-decoration:none;font-weight:800}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:12px;font-size:12.5px;opacity:0;transition:all .2s;pointer-events:none;z-index:50;max-width:min(90%,480px);text-align:center;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:850px){.workspace{grid-template-columns:1fr}.receipt-wrap{position:static}.app{max-width:700px}}
+@media(max-width:560px){.app{padding:0 14px 44px}header{padding:20px 0}.privacy-badge{display:none}.brand h1{font-size:25px}.logo-mark{width:43px;height:43px}.item-top{grid-template-columns:minmax(0,1fr) 100px 30px}.pay-grid{grid-template-columns:1fr}.receipt-actions{flex-direction:column}.section{margin-top:22px}}
+@media(max-width:390px){.item-top{grid-template-columns:minmax(0,1fr) 88px 28px}.split-mode{grid-template-columns:1fr}.mode-btn{padding:9px 5px}}
 </style>
 </head>
 <body>
 <div class="app">
-
   <header>
     <div class="brand">
-      <h1>Ambagan</h1>
-      <p>Split any bill the way you actually split it — items, discounts, and all.</p>
+      <div class="logo-mark">₱</div>
+      <div>
+        <h1>Ambagan</h1>
+        <p>Split the bill your way — shared dishes, personal orders, discounts, and exact shares.</p>
+      </div>
     </div>
-    <div class="privacy-badge">🔒 100% private<br>data stays on your device</div>
+    <div class="header-tools">
+      <div class="privacy-badge">🔒 LOCAL ONLY<br>saved on this device</div>
+      <button class="icon-btn" id="themeBtn" type="button" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    </div>
   </header>
 
-  <!-- PEOPLE -->
-  <div class="section">
-    <div class="section-head">
-      <h2>Who's splitting?</h2>
-      <span class="section-hint" id="peopleCount">0 people</span>
-    </div>
-    <div class="people-row" id="peopleRow"></div>
-    <div class="add-person">
-      <input type="text" id="personInput" placeholder="Add a name, e.g. Mark" maxlength="24">
-      <button class="btn btn-primary" onclick="addPerson()">Add</button>
-    </div>
-  </div>
-
-  <!-- ITEMS -->
-  <div class="section">
-    <div class="section-head">
-      <h2>Items on the bill</h2>
-      <span class="section-hint" id="itemCount">0 items</span>
-    </div>
-    <div id="itemsList"></div>
-    <button class="btn btn-ghost btn-block" onclick="addItem()">+ Add item</button>
-  </div>
-
-  <!-- OPTIONS -->
-  <div class="section">
-    <div class="section-head"><h2>Charges &amp; discounts</h2></div>
-    <div class="item-card">
-      <div class="opt-row">
-        <div>
-          <div class="opt-label">VAT</div>
-          <div class="opt-sub">Applied to the taxable total</div>
+  <div class="workspace">
+    <main class="editor">
+      <section class="section">
+        <div class="section-head"><h2>1 · Who's splitting?</h2><span class="section-hint" id="peopleCount">0 people</span></div>
+        <div class="panel">
+          <div class="people-row" id="peopleRow"></div>
+          <div class="add-person">
+            <input type="text" id="personInput" placeholder="Add a name, e.g. Mark" maxlength="24" autocomplete="off">
+            <button class="btn btn-primary" onclick="addPerson()">Add person</button>
+          </div>
         </div>
-        <input type="number" class="num-inline" id="vatPct" value="12" min="0" max="30" oninput="render()">
-      </div>
-      <div class="opt-row">
-        <div>
-          <div class="opt-label">Service charge</div>
-          <div class="opt-sub">% added on top, split by share</div>
-        </div>
-        <input type="number" class="num-inline" id="svcPct" value="0" min="0" max="30" oninput="render()">
-      </div>
-      <div class="opt-row">
-        <div>
-          <div class="opt-label">PWD / Senior discount</div>
-          <div class="opt-sub">20% off + VAT-exempt, that person's share only</div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="pwdEnabled" onchange="render()">
-          <span class="track"></span><span class="thumb"></span>
-        </label>
-      </div>
-      <div class="pwd-list" id="pwdList"></div>
-      <div class="opt-row">
-        <div>
-          <div class="opt-label">Round up each share</div>
-          <div class="opt-sub">Extra centavos pool into a tip</div>
-        </div>
-        <select id="roundTo" onchange="render()">
-          <option value="0">Off</option>
-          <option value="5">Nearest ₱5</option>
-          <option value="10">Nearest ₱10</option>
-          <option value="20">Nearest ₱20</option>
-        </select>
-      </div>
-    </div>
-  </div>
+      </section>
 
-  <!-- PAYMENT -->
-  <div class="section">
-    <div class="section-head"><h2>Where should they pay?</h2></div>
-    <div class="item-card">
-      <div class="pay-grid">
-        <select id="payMethod" onchange="render()">
-          <option>GCash</option>
-          <option>Maya</option>
-          <option>Bank transfer</option>
-          <option>Cash</option>
-        </select>
-        <input type="text" id="payHandle" placeholder="Name or number" oninput="render()">
-      </div>
-    </div>
-  </div>
+      <section class="section">
+        <div class="section-head"><h2>2 · Items on the bill</h2><span class="section-hint" id="itemCount">0 items</span></div>
+        <div id="itemsList"></div>
+        <button class="btn btn-ghost btn-block" onclick="addItem()">＋ Add another item</button>
+      </section>
 
-  <!-- RECEIPT -->
-  <div class="receipt-wrap">
-    <div class="receipt" id="receiptTop">
-      <p class="receipt-title" id="receiptEventTitle">Ambagan Breakdown</p>
-      <p class="receipt-sub" id="receiptDate"></p>
-      <div id="receiptBody"></div>
-    </div>
-    <div class="perforation"></div>
-    <div class="receipt-actions">
-      <button class="btn btn-mango" onclick="copyText()">Copy text</button>
-      <button class="btn btn-primary" onclick="shareOrSave()">Share / Save image</button>
-    </div>
+      <section class="section">
+        <div class="section-head"><h2>3 · Charges & discounts</h2><span class="section-hint">Make the math explicit</span></div>
+        <div class="panel">
+          <div class="opt-row">
+            <div><div class="opt-label">VAT</div><div class="opt-sub">Used for the VAT portion of each person's share.</div></div>
+            <input type="number" class="num-inline" id="vatPct" value="12" min="0" max="30" step="0.1" oninput="updateSettingsFromUI()">
+          </div>
+          <div class="price-mode">
+            <label class="checkbox-line"><input type="checkbox" id="vatInclusive" checked onchange="updateSettingsFromUI()"> Item prices already include VAT</label>
+          </div>
+          <div class="opt-row">
+            <div><div class="opt-label">Service charge</div><div class="opt-sub">Added after the person's adjusted base.</div></div>
+            <input type="number" class="num-inline" id="svcPct" value="0" min="0" max="30" step="0.1" oninput="updateSettingsFromUI()">
+          </div>
+          <div class="opt-row">
+            <div><div class="opt-label">PWD / Senior discount</div><div class="opt-sub">Marks selected people as VAT-exempt and applies 20% off their pre-VAT share.</div></div>
+            <label class="switch" aria-label="Enable PWD/Senior discount">
+              <input type="checkbox" id="pwdEnabled" onchange="updateSettingsFromUI()">
+              <span class="track"></span><span class="thumb"></span>
+            </label>
+          </div>
+          <div class="pwd-list" id="pwdList"></div>
+          <div class="opt-row">
+            <div><div class="opt-label">Round up each share</div><div class="opt-sub">The difference is shown as a rounding pool.</div></div>
+            <select id="roundTo" onchange="updateSettingsFromUI()">
+              <option value="0">Off</option><option value="5">Nearest ₱5</option><option value="10">Nearest ₱10</option><option value="20">Nearest ₱20</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head"><h2>4 · Payment details</h2><span class="section-hint">Optional</span></div>
+        <div class="panel">
+          <div class="pay-grid">
+            <select id="payMethod" onchange="updateSettingsFromUI()">
+              <option>GCash</option><option>Maya</option><option>Bank transfer</option><option>Cash</option>
+            </select>
+            <input type="text" id="payHandle" placeholder="Name, number, or account" oninput="updateSettingsFromUI()" autocomplete="off">
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="receipt-wrap">
+      <div class="receipt" id="receiptTop">
+        <p class="receipt-title" id="receiptEventTitle">Ambagan Breakdown</p>
+        <p class="receipt-sub" id="receiptDate"></p>
+        <div id="receiptBody"></div>
+      </div>
+      <div class="perforation"></div>
+      <div class="receipt-actions">
+        <button class="btn btn-mango" onclick="copyText()">Copy breakdown</button>
+        <button class="btn btn-primary" onclick="shareOrSave()">Share / Save image</button>
+      </div>
+    </aside>
   </div>
 
   <canvas id="exportCanvas" width="900" height="1200"></canvas>
-
-  <footer>
-    Split your own bill free at <a href="./">Ambagan</a> — no signup, works offline.
-  </footer>
+  <footer>Ambagan is a local-first bill splitter — no account required. <a href="./">Ambagan</a></footer>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -458,18 +214,30 @@
 let state = {
   people: [],       // {id, name, pwd}
   items: [],        // {id, name, price, mode: 'all'|'custom'|'personal', people: [ids]}
-  eventName: "Bill Split"
+  eventName: "Bill Split",
+  settings: {vatPct:12, vatInclusive:true, svcPct:0, pwdEnabled:false, roundTo:0, payMethod:"GCash", payHandle:""}
 };
 
-const STORE_KEY = "ambagan_state_v1";
+const STORE_KEY = "ambagan_state_v2";
+const OLD_STORE_KEY = "ambagan_state_v1";
 
 function loadState(){
   try{
-    const raw = localStorage.getItem(STORE_KEY);
+    let raw = localStorage.getItem(STORE_KEY);
+    if(!raw) raw = localStorage.getItem(OLD_STORE_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
       if(parsed && Array.isArray(parsed.people) && Array.isArray(parsed.items)){
-        state = parsed;
+        state = {
+          people: parsed.people.map(p=>({id:String(p.id||uid()),name:String(p.name||''),pwd:!!p.pwd})),
+          items: parsed.items.map(i=>({
+            id:String(i.id||uid()), name:String(i.name||''), price:Number(i.price)||0,
+            mode:['all','custom','personal'].includes(i.mode)?i.mode:'all',
+            people:Array.isArray(i.people)?i.people.map(String):[]
+          })),
+          eventName:String(parsed.eventName||"Bill Split"),
+          settings:{...state.settings,...(parsed.settings||{})}
+        };
       }
     }
   }catch(e){ console.warn("Could not load saved data", e); }
@@ -478,17 +246,46 @@ function saveState(){
   try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
   catch(e){ console.warn("Could not save", e); }
 }
-function uid(){ return Math.random().toString(36).slice(2,9); }
+function uid(){ return crypto?.randomUUID ? crypto.randomUUID().slice(0,8) : Math.random().toString(36).slice(2,10); }
+function updateSettingsFromUI(){
+  state.settings.vatPct = clamp(parseFloat(document.getElementById('vatPct')?.value)||0,0,30);
+  state.settings.vatInclusive = !!document.getElementById('vatInclusive')?.checked;
+  state.settings.svcPct = clamp(parseFloat(document.getElementById('svcPct')?.value)||0,0,30);
+  state.settings.pwdEnabled = !!document.getElementById('pwdEnabled')?.checked;
+  state.settings.roundTo = parseFloat(document.getElementById('roundTo')?.value)||0;
+  state.settings.payMethod = document.getElementById('payMethod')?.value || "GCash";
+  state.settings.payHandle = (document.getElementById('payHandle')?.value||"").trim();
+  saveState();
+  renderReceipt();
+  renderPwdList();
+}
+function clamp(n,min,max){ return Math.min(max,Math.max(min,n)); }
+function syncSettingsUI(){
+  const x=state.settings||{};
+  document.getElementById('vatPct').value=x.vatPct??12;
+  document.getElementById('vatInclusive').checked=x.vatInclusive!==false;
+  document.getElementById('svcPct').value=x.svcPct??0;
+  document.getElementById('pwdEnabled').checked=!!x.pwdEnabled;
+  document.getElementById('roundTo').value=String(x.roundTo??0);
+  document.getElementById('payMethod').value=x.payMethod||"GCash";
+  document.getElementById('payHandle').value=x.payHandle||"";
+}
+function toggleTheme(){
+  const root=document.documentElement;
+  const next=root.dataset.theme==='dark'?'light':'dark';
+  root.dataset.theme=next;
+  try{localStorage.setItem('ambagan_theme',next)}catch(e){}
+}
 
 /* ---------- PEOPLE ---------- */
 function addPerson(){
-  const input = document.getElementById('personInput');
-  const name = input.value.trim();
+  const input=document.getElementById('personInput');
+  const name=input.value.trim();
   if(!name) return;
-  state.people.push({id: uid(), name, pwd:false});
-  input.value = '';
-  saveState();
-  render();
+  if(state.people.some(p=>p.name.toLowerCase()===name.toLowerCase())){ showToast('That person is already added.'); return; }
+  state.people.push({id:uid(),name,pwd:false});
+  input.value='';
+  saveState(); render();
 }
 document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('personInput').addEventListener('keydown', e=>{
@@ -510,9 +307,12 @@ function togglePwd(id){
 
 /* ---------- ITEMS ---------- */
 function addItem(){
-  state.items.push({id: uid(), name:'', price:0, mode:'all', people:[]});
-  saveState();
-  render();
+  state.items.push({id:uid(),name:'',price:0,mode:'all',people:[]});
+  saveState(); render();
+  requestAnimationFrame(()=>{
+    const inputs=document.querySelectorAll('#itemsList input[type="text"]');
+    inputs[inputs.length-1]?.focus();
+  });
 }
 function removeItem(id){
   state.items = state.items.filter(i=>i.id!==id);
@@ -520,27 +320,27 @@ function removeItem(id){
   render();
 }
 function updateItem(id, field, value){
-  const it = state.items.find(i=>i.id===id);
+  const it=state.items.find(i=>i.id===id);
   if(!it) return;
-  if(field==='price'){ it.price = parseFloat(value)||0; }
-  else { it[field] = value; }
+  if(field==='price') it.price=clamp(parseFloat(value)||0,0,100000000);
+  else it[field]=value;
   saveState();
-  render();
+  // Do not rebuild the item DOM while the user is typing; that causes caret/focus jumps.
+  renderReceipt();
 }
-function setMode(id, mode){
-  const it = state.items.find(i=>i.id===id);
+function setMode(id,mode){
+  const it=state.items.find(i=>i.id===id);
   if(!it) return;
-  it.mode = mode;
-  if(mode==='all') it.people = state.people.map(p=>p.id);
-  if(mode==='personal') it.people = it.people.slice(0,1);
-  saveState();
-  render();
+  it.mode=mode;
+  if(mode==='all') it.people=[];
+  if(mode==='personal') it.people=it.people.slice(0,1);
+  saveState(); render();
 }
 function togglePersonOnItem(itemId, personId){
   const it = state.items.find(i=>i.id===itemId);
   if(!it) return;
   if(it.mode==='personal'){
-    it.people = [personId];
+    it.people=[personId];
   } else {
     if(it.people.includes(personId)) it.people = it.people.filter(x=>x!==personId);
     else it.people.push(personId);
@@ -551,65 +351,56 @@ function togglePersonOnItem(itemId, personId){
 
 /* ---------- CALCULATION ---------- */
 function calculate(){
-  const vatPct = parseFloat(document.getElementById('vatPct').value)||0;
-  const svcPct = parseFloat(document.getElementById('svcPct').value)||0;
-  const pwdEnabled = document.getElementById('pwdEnabled').checked;
-  const roundTo = parseFloat(document.getElementById('roundTo').value)||0;
-
-  const shares = {}; // personId -> subtotal (pre-tax, pre-discount) owed
-  state.people.forEach(p=> shares[p.id]=0);
+  const settings=state.settings||{};
+  const vatPct=clamp(parseFloat(settings.vatPct)||0,0,30);
+  const svcPct=clamp(parseFloat(settings.svcPct)||0,0,30);
+  const pwdEnabled=!!settings.pwdEnabled;
+  const roundTo=parseFloat(settings.roundTo)||0;
+  const shares={}; state.people.forEach(p=>shares[p.id]=0);
 
   state.items.forEach(it=>{
-    const involved = it.people.filter(pid=>state.people.some(p=>p.id===pid));
-    if(involved.length===0 || !it.price) return;
-    const each = it.price/involved.length;
-    involved.forEach(pid=> shares[pid]+=each);
+    const involved = it.mode==='all'
+      ? state.people.map(p=>p.id)
+      : it.people.filter(pid=>state.people.some(p=>p.id===pid));
+    if(!involved.length || !(it.price>0)) return;
+    const each=it.price/involved.length;
+    involved.forEach(pid=>shares[pid]+=each);
   });
 
-  // Build per-person breakdown with VAT/service/PWD discount
-  const breakdown = state.people.map(p=>{
-    const base = shares[p.id]||0;
-    let vatExempt = false, discount = 0, vatAmt = 0, netBase = base;
-
-    if(pwdEnabled && p.pwd){
-      // PWD/Senior: VAT-exempt + 20% discount on their portion (PH rule, net of VAT)
-      // Assume displayed item prices are VAT-inclusive; back out VAT first.
-      const vatInclusive = base;
-      const preVat = vatPct>0 ? vatInclusive/(1+vatPct/100) : vatInclusive;
-      discount = preVat*0.20;
-      netBase = preVat - discount;
-      vatAmt = 0;
-      vatExempt = true;
-    } else {
-      if(vatPct>0){
-        // assume base already VAT-inclusive as typical PH receipts; show vat portion for transparency
-        vatAmt = base - base/(1+vatPct/100);
+  const breakdown=state.people.map(p=>{
+    const base=shares[p.id]||0;
+    const pwd=pwdEnabled&&p.pwd;
+    let preVat=base, vatAmt=0, discount=0, netBase=base;
+    if(vatPct>0){
+      if(settings.vatInclusive){
+        preVat=base/(1+vatPct/100);
+        vatAmt=pwd?0:base-preVat;
+      }else{
+        preVat=base;
+        vatAmt=pwd?0:preVat*vatPct/100;
       }
-      netBase = base;
     }
-
-    const svcAmt = netBase * (svcPct/100);
-    let total = netBase + svcAmt;
-    return {person:p, base, vatExempt, discount, vatAmt, svcAmt, total};
+    if(pwd){
+      discount=preVat*.20;
+      netBase=preVat-discount;
+    }else{
+      netBase=settings.vatInclusive?base:preVat+vatAmt;
+    }
+    const svcAmt=netBase*(svcPct/100);
+    let total=netBase+svcAmt;
+    return {person:p,base,preVat,vatExempt:pwd,discount,vatAmt,svcAmt,total};
   });
 
-  // Rounding pool
-  let poolTotal = 0;
-  if(roundTo>0){
-    breakdown.forEach(b=>{
-      const rounded = Math.ceil(b.total/roundTo)*roundTo;
-      poolTotal += (rounded - b.total);
-      b.rawTotal = b.total;
-      b.total = rounded;
-    });
-  } else {
-    breakdown.forEach(b=> b.rawTotal = b.total);
-  }
-
-  const grandTotal = breakdown.reduce((s,b)=>s+b.total,0);
-  const itemsTotal = state.items.reduce((s,i)=>s+(i.price||0),0);
-
-  return {breakdown, grandTotal, itemsTotal, poolTotal, roundTo, vatPct, svcPct, pwdEnabled};
+  let poolTotal=0;
+  breakdown.forEach(b=>{
+    b.rawTotal=b.total;
+    if(roundTo>0){b.total=Math.ceil(b.total/roundTo)*roundTo;poolTotal+=b.total-b.rawTotal;}
+  });
+  const grandTotal=breakdown.reduce((s,b)=>s+b.total,0);
+  const assignedSubtotal=breakdown.reduce((s,b)=>s+b.base,0);
+  const itemsTotal=state.items.reduce((s,i)=>s+(Number(i.price)||0),0);
+  const unassigned=Math.max(0,itemsTotal-assignedSubtotal);
+  return {breakdown,grandTotal,itemsTotal,assignedSubtotal,unassigned,poolTotal,roundTo,vatPct,svcPct,pwdEnabled,vatInclusive:settings.vatInclusive};
 }
 
 /* ---------- RENDER ---------- */
@@ -681,42 +472,29 @@ function renderItems(){
 }
 
 function renderReceipt(){
-  const calc = calculate();
-  const body = document.getElementById('receiptBody');
-  document.getElementById('receiptDate').textContent = new Date().toLocaleDateString('en-PH', {year:'numeric', month:'short', day:'numeric'});
-
-  if(state.people.length===0 || state.items.length===0){
-    body.innerHTML = `<div class="empty-note" style="font-family:'Sora',sans-serif;">Add people and items to see the split.</div>`;
+  const calc=calculate();
+  const body=document.getElementById('receiptBody');
+  document.getElementById('receiptDate').textContent=new Date().toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'});
+  if(state.people.length===0||state.items.length===0){
+    body.innerHTML=`<div class="empty-note">Add people and at least one item to see the live split.</div>`;
     return;
   }
-
-  let html = '';
+  let html='';
   calc.breakdown.forEach(b=>{
-    html += `<div class="person-block">
-      <div class="person-name"><span>${escapeHtml(b.person.name)}${b.vatExempt?' 🏷':''}</span><span class="amt">₱${fmt(b.total)}</span></div>`;
-    if(b.discount>0){
-      html += `<div class="receipt-line sub"><span>PWD/Senior 20% off</span><span>-₱${fmt(b.discount)}</span></div>`;
-    }
-    if(b.svcAmt>0){
-      html += `<div class="receipt-line sub"><span>Service chg</span><span>+₱${fmt(b.svcAmt)}</span></div>`;
-    }
-    html += `</div>`;
+    html+=`<div class="person-block">
+      <div class="person-name"><span>${escapeHtml(b.person.name)}${b.vatExempt?' · PWD/SC':''}</span><span class="amt">₱${fmt(b.total)}</span></div>`;
+    if(b.discount>0) html+=`<div class="receipt-line sub"><span>20% discount</span><span>−₱${fmt(b.discount)}</span></div>`;
+    if(b.vatAmt>0) html+=`<div class="receipt-line sub"><span>VAT included</span><span>₱${fmt(b.vatAmt)}</span></div>`;
+    if(b.svcAmt>0) html+=`<div class="receipt-line sub"><span>Service charge</span><span>+₱${fmt(b.svcAmt)}</span></div>`;
+    html+=`</div>`;
   });
-
-  html += `<hr>`;
-  html += `<div class="receipt-line"><span>Items subtotal</span><span>₱${fmt(calc.itemsTotal)}</span></div>`;
-  if(calc.poolTotal>0){
-    html += `<div class="receipt-line"><span>Rounding → tip pool</span><span>+₱${fmt(calc.poolTotal)}</span></div>`;
-  }
-  html += `<div class="grand-total"><span>Total</span><span>₱${fmt(calc.grandTotal)}</span></div>`;
-
-  const method = document.getElementById('payMethod').value;
-  const handle = document.getElementById('payHandle').value.trim();
-  if(handle){
-    html += `<hr><div class="receipt-line"><span>Send via ${escapeHtml(method)}</span><span>${escapeHtml(handle)}</span></div>`;
-  }
-
-  body.innerHTML = html;
+  html+=`<hr><div class="receipt-line"><span>Bill items</span><span>₱${fmt(calc.itemsTotal)}</span></div>`;
+  if(calc.unassigned>0.005) html+=`<div class="receipt-line sub"><span>Not assigned yet</span><span>−₱${fmt(calc.unassigned)}</span></div>`;
+  if(calc.poolTotal>0) html+=`<div class="receipt-line"><span>Rounding pool</span><span>+₱${fmt(calc.poolTotal)}</span></div>`;
+  html+=`<div class="grand-total"><span>Total</span><span>₱${fmt(calc.grandTotal)}</span></div>`;
+  const handle=(state.settings?.payHandle||'').trim(), method=state.settings?.payMethod||'GCash';
+  if(handle) html+=`<div class="total-badge"><span>PAY VIA ${escapeHtml(method).toUpperCase()}</span><strong>${escapeHtml(handle)}</strong></div>`;
+  body.innerHTML=html;
 }
 
 function fmt(n){ return (Math.round(n*100)/100).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}); }
@@ -725,21 +503,12 @@ function escapeAttr(s){ return escapeHtml(s); }
 
 /* ---------- EXPORT: TEXT ---------- */
 function buildTextExport(){
-  const calc = calculate();
-  const method = document.getElementById('payMethod').value;
-  const handle = document.getElementById('payHandle').value.trim();
-  let lines = [];
-  lines.push(`🧾 AMBAGAN BREAKDOWN`);
-  lines.push(`--------------------------------`);
-  calc.breakdown.forEach(b=>{
-    lines.push(`• ${b.person.name}: ₱${fmt(b.total)}${b.vatExempt?' (PWD/SC)':''}`);
-  });
-  lines.push(`--------------------------------`);
-  lines.push(`Total: ₱${fmt(calc.grandTotal)}`);
-  if(handle){
-    lines.push(``);
-    lines.push(`Send via ${method}: ${handle}`);
-  }
+  const calc=calculate(), method=state.settings?.payMethod||'GCash', handle=(state.settings?.payHandle||'').trim();
+  const lines=['🧾 AMBAGAN BREAKDOWN','--------------------------------'];
+  calc.breakdown.forEach(b=>lines.push(`• ${b.person.name}: ₱${fmt(b.total)}${b.vatExempt?' (PWD/SC)':''}`));
+  lines.push('--------------------------------',`Total: ₱${fmt(calc.grandTotal)}`);
+  if(calc.unassigned>0.005) lines.push(`⚠️ Unassigned items: ₱${fmt(calc.unassigned)}`);
+  if(handle) lines.push('',`Send via ${method}: ${handle}`);
   return lines.join('\n');
 }
 
@@ -749,7 +518,8 @@ function copyText(){
     return;
   }
   const text = buildTextExport();
-  navigator.clipboard.writeText(text).then(()=>{
+  const copyPromise = navigator.clipboard?.writeText ? navigator.clipboard.writeText(text) : Promise.reject();
+  copyPromise.then(()=>{
     showToast('Copied! Paste it in your group chat.');
   }).catch(()=>{
     // fallback
@@ -763,106 +533,55 @@ function copyText(){
 
 /* ---------- EXPORT: IMAGE ---------- */
 function drawReceiptImage(){
-  const calc = calculate();
-  const canvas = document.getElementById('exportCanvas');
-  const W = 900;
-  const rowH = 46;
-  const headerH = 190;
-  const footerH = 160;
-  const H = headerH + calc.breakdown.length*rowH + footerH + 40;
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  // background
-  ctx.fillStyle = '#FBF6EC';
-  ctx.fillRect(0,0,W,H);
-
-  // border
-  ctx.strokeStyle = '#DCD3C0';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(20,20,W-40,H-40);
-
-  let y = 70;
-  ctx.fillStyle = '#20261F';
-  ctx.textAlign = 'center';
-  ctx.font = '700 34px Sora, sans-serif';
-  ctx.fillText('Ambagan Breakdown', W/2, y);
-  y += 30;
-  ctx.font = '400 16px "IBM Plex Mono", monospace';
-  ctx.fillStyle = '#5B6259';
-  ctx.fillText(new Date().toLocaleDateString('en-PH', {year:'numeric', month:'long', day:'numeric'}), W/2, y);
-  y += 20;
-  ctx.strokeStyle = '#DCD3C0';
-  ctx.setLineDash([8,6]);
-  ctx.beginPath(); ctx.moveTo(60,y); ctx.lineTo(W-60,y); ctx.stroke();
-  ctx.setLineDash([]);
-  y += 44;
-
-  ctx.textAlign = 'left';
+  const calc=calculate(), canvas=document.getElementById('exportCanvas'), W=1000;
+  const rows=Math.max(calc.breakdown.length,1), H=250+rows*62+220+(state.settings?.payHandle?55:0);
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#F6F1E7';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#D8CFBE';ctx.lineWidth=3;ctx.strokeRect(24,24,W-48,H-48);
+  let y=92;
+  ctx.fillStyle='#17221C';ctx.textAlign='center';ctx.font='800 38px Sora, sans-serif';ctx.fillText('Ambagan Breakdown',W/2,y);
+  y+=32;ctx.font='400 17px "IBM Plex Mono", monospace';ctx.fillStyle='#687269';
+  ctx.fillText(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}),W/2,y);
+  y+=28;ctx.strokeStyle='#D8CFBE';ctx.setLineDash([9,7]);ctx.beginPath();ctx.moveTo(70,y);ctx.lineTo(W-70,y);ctx.stroke();ctx.setLineDash([]);y+=50;
+  ctx.textAlign='left';
   calc.breakdown.forEach(b=>{
-    ctx.font = '700 22px Sora, sans-serif';
-    ctx.fillStyle = '#20261F';
-    ctx.fillText(b.person.name + (b.vatExempt?'  🏷 PWD/SC':''), 60, y);
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#2A4034';
-    ctx.fillText('₱' + fmt(b.total), W-60, y);
-    ctx.textAlign = 'left';
-    y += rowH;
+    ctx.fillStyle='#17221C';ctx.font='700 22px Sora, sans-serif';
+    let name=b.person.name+(b.vatExempt?' · PWD/SC':'');
+    if(ctx.measureText(name).width>650) name=name.slice(0,34)+'…';
+    ctx.fillText(name,70,y);
+    ctx.textAlign='right';ctx.fillStyle='#245844';ctx.fillText('₱'+fmt(b.total),W-70,y);ctx.textAlign='left';y+=62;
   });
-
-  ctx.strokeStyle = '#DCD3C0';
-  ctx.setLineDash([8,6]);
-  ctx.beginPath(); ctx.moveTo(60,y-14); ctx.lineTo(W-60,y-14); ctx.stroke();
-  ctx.setLineDash([]);
-  y += 24;
-
-  ctx.font = '800 30px Sora, sans-serif';
-  ctx.fillStyle = '#20261F';
-  ctx.fillText('Total', 60, y);
-  ctx.textAlign = 'right';
-  ctx.fillText('₱' + fmt(calc.grandTotal), W-60, y);
-  ctx.textAlign = 'left';
-  y += 46;
-
-  const method = document.getElementById('payMethod').value;
-  const handle = document.getElementById('payHandle').value.trim();
-  if(handle){
-    ctx.font = '600 20px "IBM Plex Mono", monospace';
-    ctx.fillStyle = '#5B6259';
-    ctx.fillText(`Send via ${method}: ${handle}`, 60, y);
-    y += 40;
-  }
-
-  ctx.font = '400 15px "IBM Plex Mono", monospace';
-  ctx.fillStyle = '#8A8F84';
-  ctx.textAlign = 'center';
-  ctx.fillText('Split your own bill free — Ambagan', W/2, H-40);
-
+  ctx.strokeStyle='#D8CFBE';ctx.setLineDash([9,7]);ctx.beginPath();ctx.moveTo(70,y-28);ctx.lineTo(W-70,y-28);ctx.stroke();ctx.setLineDash([]);
+  y+=12;ctx.fillStyle='#17221C';ctx.font='900 32px Sora, sans-serif';ctx.fillText('Total',70,y);
+  ctx.textAlign='right';ctx.fillText('₱'+fmt(calc.grandTotal),W-70,y);ctx.textAlign='left';y+=50;
+  if(calc.unassigned>0.005){ctx.fillStyle='#B94316';ctx.font='600 16px "IBM Plex Mono", monospace';ctx.fillText('Unassigned items: ₱'+fmt(calc.unassigned),70,y);y+=30;}
+  const handle=(state.settings?.payHandle||'').trim(),method=state.settings?.payMethod||'GCash';
+  if(handle){ctx.fillStyle='#687269';ctx.font='600 17px "IBM Plex Mono", monospace';ctx.fillText(`Send via ${method}: ${handle}`,70,y);y+=35;}
+  ctx.fillStyle='#8A9188';ctx.font='400 14px "IBM Plex Mono", monospace';ctx.textAlign='center';ctx.fillText('Local-first bill splitting · Ambagan',W/2,H-48);
   return canvas;
 }
 
 async function shareOrSave(){
-  if(state.people.length===0 || state.items.length===0){
-    showToast('Add people and items first');
-    return;
-  }
-  const canvas = drawReceiptImage();
-  canvas.toBlob(async (blob)=>{
-    if(!blob) return;
-    const file = new File([blob], 'ambagan-split.png', {type:'image/png'});
-    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-      try{
-        await navigator.share({files:[file], title:'Ambagan Breakdown', text: buildTextExport()});
-        return;
-      }catch(e){ /* user cancelled or unsupported, fall through to download */ }
+  if(state.people.length===0||state.items.length===0){showToast('Add people and items first');return;}
+  if(document.fonts?.ready) await document.fonts.ready;
+  const canvas=drawReceiptImage();
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(!blob){showToast('Could not create the image.');return;}
+  const file=new File([blob],'ambagan-split.png',{type:'image/png'});
+  try{
+    if(navigator.share && navigator.canShare?.({files:[file]})){
+      await navigator.share({files:[file],title:'Ambagan Breakdown',text:buildTextExport()});
+      showToast('Shared.');
+      return;
     }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'ambagan-split.png';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('Image saved to your device.');
-  }, 'image/png');
+  }catch(e){
+    if(e?.name==='AbortError'){showToast('Share cancelled.');return;}
+  }
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='ambagan-split.png';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast('Image saved to your device.');
 }
 
 function showToast(msg){
@@ -875,7 +594,13 @@ function showToast(msg){
 
 /* ---------- INIT ---------- */
 loadState();
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded',()=>{
+  syncSettingsUI();
+  try{
+    const savedTheme=localStorage.getItem('ambagan_theme');
+    if(savedTheme==='dark'||savedTheme==='light') document.documentElement.dataset.theme=savedTheme;
+  }catch(e){}
+  document.getElementById('personInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addPerson();}});
   render();
 });
 </script>
