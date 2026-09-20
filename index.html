@@ -198,7 +198,8 @@ footer{text-align:center;margin-top:34px;font-size:11px;color:var(--ink-soft)}fo
       <div class="perforation"></div>
       <div class="receipt-actions">
         <button class="btn btn-mango" onclick="copyText()">Copy breakdown</button>
-        <button class="btn btn-primary" onclick="shareOrSave()">Share / Save image</button>
+        <button class="btn btn-ghost" onclick="saveImage()">Save image</button>
+        <button class="btn btn-primary" id="shareBtn" onclick="shareImage()" style="display:none">Share</button>
       </div>
     </aside>
   </div>
@@ -562,11 +563,25 @@ function drawReceiptImage(){
   return canvas;
 }
 
-async function shareOrSave(){
-  if(state.people.length===0||state.items.length===0){showToast('Add people and items first');return;}
+async function getReceiptBlob(){
   if(document.fonts?.ready) await document.fonts.ready;
   const canvas=drawReceiptImage();
-  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  return await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+}
+
+async function saveImage(){
+  if(state.people.length===0||state.items.length===0){showToast('Add people and items first');return;}
+  const blob=await getReceiptBlob();
+  if(!blob){showToast('Could not create the image.');return;}
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='ambagan-split.png';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast('Image saved to your device.');
+}
+
+async function shareImage(){
+  if(state.people.length===0||state.items.length===0){showToast('Add people and items first');return;}
+  const blob=await getReceiptBlob();
   if(!blob){showToast('Could not create the image.');return;}
   const file=new File([blob],'ambagan-split.png',{type:'image/png'});
   try{
@@ -578,10 +593,19 @@ async function shareOrSave(){
   }catch(e){
     if(e?.name==='AbortError'){showToast('Share cancelled.');return;}
   }
+  // Share unavailable or failed for a non-cancel reason — fall back to saving instead
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download='ambagan-split.png';document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
-  showToast('Image saved to your device.');
+  showToast('Sharing wasn\'t available — image saved instead.');
+}
+
+function shareIsLikelySupported(){
+  // Only offer native share on touch-primary devices with real file-share support.
+  // Desktop browsers (including DevTools mobile emulation) rarely have real share targets.
+  const touchPrimary = window.matchMedia?.('(pointer: coarse)')?.matches;
+  const hasShareApi = !!(navigator.share && navigator.canShare);
+  return touchPrimary && hasShareApi;
 }
 
 function showToast(msg){
@@ -601,6 +625,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(savedTheme==='dark'||savedTheme==='light') document.documentElement.dataset.theme=savedTheme;
   }catch(e){}
   document.getElementById('personInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addPerson();}});
+  if(shareIsLikelySupported()){
+    document.getElementById('shareBtn').style.display='';
+  }
   render();
 });
 </script>
