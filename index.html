@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ambagan — Split the Bill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF6EC;
+    --paper-2:#F3ECDC;
+    --ink:#20261F;
+    --ink-soft:#5B6259;
+    --mango:#F2A93B;
+    --mango-ink:#3D2A08;
+    --sili:#C1440E;
+    --palay:#3E5C4E;
+    --palay-deep:#2A4034;
+    --line:#DCD3C0;
+    --white:#FFFDF8;
+    --danger-bg:#FBEAE1;
+    box-sizing:border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1B1E1A;
+      --paper-2:#242822;
+      --ink:#F3EEE2;
+      --ink-soft:#B9BDB2;
+      --line:#3A3F37;
+      --white:#22261F;
+      --danger-bg:#3A241C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1B1E1A;
+    --paper-2:#242822;
+    --ink:#F3EEE2;
+    --ink-soft:#B9BDB2;
+    --line:#3A3F37;
+    --white:#22261F;
+    --danger-bg:#3A241C;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  html{scroll-padding-top: env(safe-area-inset-top, 0px);}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Sora',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100%;
+    padding:0 16px 40px;
+    position:relative;
+  }
+  /* HEADER */
+  header{
+    padding:22px 0 16px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    border-bottom:2px dashed var(--line);
+  }
+  .brand h1{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 2px;
+    letter-spacing:-0.02em;
+  }
+  .brand p{
+    margin:0;
+    font-size:13px;
+    color:var(--ink-soft);
+    max-width:32ch;
+  }
+  .privacy-badge{
+    flex-shrink:0;
+    font-size:10.5px;
+    font-family:'IBM Plex Mono',monospace;
+    background:var(--palay);
+    color:#fff;
+    padding:6px 8px;
+    border-radius:6px;
+    line-height:1.35;
+    text-align:right;
+    max-width:110px;
+  }
+
+  /* SECTION LABEL */
+  .section{margin-top:26px;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .section-head h2{
+    font-size:15px;
+    margin:0;
+    font-weight:700;
+  }
+  .section-hint{
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+
+  /* PEOPLE CHIPS */
+  .people-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    display:flex;align-items:center;gap:6px;
+    background:var(--white);
+    border:1.5px solid var(--line);
+    padding:7px 6px 7px 12px;
+    border-radius:20px;
+    font-size:13.5px;
+    font-weight:600;
+  }
+  .chip.pwd{border-color:var(--sili); background:var(--danger-bg);}
+  .chip .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    color:var(--sili);
+    font-weight:700;
+  }
+  .chip button{
+    border:none;background:var(--paper-2);
+    width:20px;height:20px;border-radius:50%;
+    cursor:pointer;color:var(--ink-soft);font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+    line-height:1;
+  }
+  .add-person{
+    display:flex;gap:8px;margin-top:10px;
+  }
+  input[type=text], input[type=number]{
+    font-family:'Sora',sans-serif;
+    border:1.5px solid var(--line);
+    background:var(--white);
+    color:var(--ink);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:14.5px;
+    width:100%;
+  }
+  input:focus{outline:2px solid var(--palay); outline-offset:1px;}
+  .btn{
+    font-family:'Sora',sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    border:none;
+    border-radius:10px;
+    padding:10px 16px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn-primary{background:var(--palay); color:#fff;}
+  .btn-primary:active{background:var(--palay-deep);}
+  .btn-mango{background:var(--mango); color:var(--mango-ink);}
+  .btn-ghost{background:transparent; border:1.5px solid var(--line); color:var(--ink);}
+  .btn-block{width:100%;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+
+  /* ITEMS */
+  .item-card{
+    background:var(--white);
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    padding:12px 14px;
+    margin-bottom:10px;
+  }
+  .item-top{
+    display:flex; gap:10px; align-items:center; margin-bottom:10px;
+  }
+  .item-top input[type=text]{flex:1;}
+  .item-price{width:104px; flex-shrink:0;}
+  .item-remove{
+    flex-shrink:0;
+    border:none;background:none;color:var(--sili);
+    font-size:18px; cursor:pointer; padding:2px 4px;
+  }
+  .split-mode{
+    display:flex; gap:6px; margin-bottom:10px;
+  }
+  .mode-btn{
+    flex:1;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    font-weight:600;
+    padding:6px 4px;
+    border-radius:7px;
+    border:1.5px solid var(--line);
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .mode-btn.active{
+    background:var(--ink); color:var(--paper); border-color:var(--ink);
+  }
+  .people-select{
+    display:flex; flex-wrap:wrap; gap:6px;
+  }
+  .pill{
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:14px;
+    border:1.5px solid var(--line);
+    background:var(--paper-2);
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-weight:600;
+  }
+  .pill.on{
+    background:var(--palay); color:#fff; border-color:var(--palay);
+  }
+  .empty-note{
+    font-size:13px; color:var(--ink-soft);
+    padding:16px; text-align:center;
+    border:1.5px dashed var(--line);
+    border-radius:12px;
+  }
+
+  /* OPTIONS */
+  .opt-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    gap:12px;
+  }
+  .opt-row:last-child{border-bottom:none;}
+  .opt-label{font-size:13.5px; font-weight:600;}
+  .opt-sub{font-size:11.5px; color:var(--ink-soft); font-weight:400; margin-top:2px;}
+  .switch{
+    position:relative; width:42px; height:24px; flex-shrink:0;
+  }
+  .switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer;}
+  .switch .track{
+    position:absolute; inset:0; background:var(--line); border-radius:14px; transition:background .15s;
+  }
+  .switch .thumb{
+    position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%;
+    background:#fff; transition:transform .15s; box-shadow:0 1px 2px rgba(0,0,0,.25);
+  }
+  .switch input:checked + .track{background:var(--palay);}
+  .switch input:checked + .track + .thumb{transform:translateX(18px);}
+  .num-inline{
+    width:70px; text-align:right; padding:7px 8px; font-family:'IBM Plex Mono',monospace;
+  }
+  select{
+    font-family:'Sora',sans-serif;
+    border:1.5px solid var(--line);
+    background:var(--white);
+    color:var(--ink);
+    border-radius:10px;
+    padding:7px 8px;
+    font-size:13px;
+  }
+  .pwd-list{margin-top:8px;}
+  .pwd-list .pill{margin:0 6px 6px 0;}
+
+  /* PAYMENT INFO */
+  .pay-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+
+  /* RECEIPT */
+  .receipt-wrap{
+    margin-top:26px;
+  }
+  .receipt{
+    background:var(--white);
+    border:1.5px solid var(--line);
+    border-radius:14px 14px 0 0;
+    padding:20px 18px 16px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .receipt-title{
+    text-align:center; font-size:15px; font-weight:700; margin:0 0 2px;
+    font-family:'Sora',sans-serif;
+  }
+  .receipt-sub{
+    text-align:center; font-size:11px; color:var(--ink-soft); margin:0 0 14px;
+  }
+  .receipt hr{
+    border:none; border-top:1.5px dashed var(--line); margin:12px 0;
+  }
+  .receipt-line{
+    display:flex; justify-content:space-between; font-size:12.5px; padding:2px 0;
+  }
+  .receipt-line.sub{color:var(--ink-soft); font-size:11.5px; padding-left:10px;}
+  .person-block{margin-bottom:12px;}
+  .person-name{
+    display:flex; justify-content:space-between;
+    font-weight:700; font-size:13.5px; margin-bottom:3px;
+  }
+  .person-name .amt{color:var(--palay-deep);}
+  .grand-total{
+    display:flex; justify-content:space-between;
+    font-size:16px; font-weight:700; margin-top:6px;
+  }
+  .perforation{
+    height:14px;
+    background:
+      radial-gradient(circle 7px at 0 0, transparent 7px, var(--paper) 7.5px) top left,
+      var(--white);
+    background-size:16px 16px;
+    background-repeat:repeat-x;
+    position:relative;
+    border-left:1.5px solid var(--line);
+    border-right:1.5px solid var(--line);
+  }
+  .receipt-actions{
+    display:flex; gap:8px; margin-top:14px;
+  }
+  .receipt-actions .btn{flex:1;}
+  canvas#exportCanvas{display:none;}
+  footer{
+    text-align:center; margin-top:30px; font-size:11.5px; color:var(--ink-soft);
+  }
+  footer a{color:var(--palay); text-decoration:none; font-weight:600;}
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:10px;
+    font-size:13px; opacity:0; transition:all .2s; pointer-events:none; z-index:50;
+    max-width:90%; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <h1>Ambagan</h1>
+      <p>Split any bill the way you actually split it — items, discounts, and all.</p>
+    </div>
+    <div class="privacy-badge">🔒 100% private<br>data stays on your device</div>
+  </header>
+
+  <!-- PEOPLE -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Who's splitting?</h2>
+      <span class="section-hint" id="peopleCount">0 people</span>
+    </div>
+    <div class="people-row" id="peopleRow"></div>
+    <div class="add-person">
+      <input type="text" id="personInput" placeholder="Add a name, e.g. Mark" maxlength="24">
+      <button class="btn btn-primary" onclick="addPerson()">Add</button>
+    </div>
+  </div>
+
+  <!-- ITEMS -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Items on the bill</h2>
+      <span class="section-hint" id="itemCount">0 items</span>
+    </div>
+    <div id="itemsList"></div>
+    <button class="btn btn-ghost btn-block" onclick="addItem()">+ Add item</button>
+  </div>
+
+  <!-- OPTIONS -->
+  <div class="section">
+    <div class="section-head"><h2>Charges &amp; discounts</h2></div>
+    <div class="item-card">
+      <div class="opt-row">
+        <div>
+          <div class="opt-label">VAT</div>
+          <div class="opt-sub">Applied to the taxable total</div>
+        </div>
+        <input type="number" class="num-inline" id="vatPct" value="12" min="0" max="30" oninput="render()">
+      </div>
+      <div class="opt-row">
+        <div>
+          <div class="opt-label">Service charge</div>
+          <div class="opt-sub">% added on top, split by share</div>
+        </div>
+        <input type="number" class="num-inline" id="svcPct" value="0" min="0" max="30" oninput="render()">
+      </div>
+      <div class="opt-row">
+        <div>
+          <div class="opt-label">PWD / Senior discount</div>
+          <div class="opt-sub">20% off + VAT-exempt, that person's share only</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="pwdEnabled" onchange="render()">
+          <span class="track"></span><span class="thumb"></span>
+        </label>
+      </div>
+      <div class="pwd-list" id="pwdList"></div>
+      <div class="opt-row">
+        <div>
+          <div class="opt-label">Round up each share</div>
+          <div class="opt-sub">Extra centavos pool into a tip</div>
+        </div>
+        <select id="roundTo" onchange="render()">
+          <option value="0">Off</option>
+          <option value="5">Nearest ₱5</option>
+          <option value="10">Nearest ₱10</option>
+          <option value="20">Nearest ₱20</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT -->
+  <div class="section">
+    <div class="section-head"><h2>Where should they pay?</h2></div>
+    <div class="item-card">
+      <div class="pay-grid">
+        <select id="payMethod" onchange="render()">
+          <option>GCash</option>
+          <option>Maya</option>
+          <option>Bank transfer</option>
+          <option>Cash</option>
+        </select>
+        <input type="text" id="payHandle" placeholder="Name or number" oninput="render()">
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEIPT -->
+  <div class="receipt-wrap">
+    <div class="receipt" id="receiptTop">
+      <p class="receipt-title" id="receiptEventTitle">Ambagan Breakdown</p>
+      <p class="receipt-sub" id="receiptDate"></p>
+      <div id="receiptBody"></div>
+    </div>
+    <div class="perforation"></div>
+    <div class="receipt-actions">
+      <button class="btn btn-mango" onclick="copyText()">Copy text</button>
+      <button class="btn btn-primary" onclick="shareOrSave()">Share / Save image</button>
+    </div>
+  </div>
+
+  <canvas id="exportCanvas" width="900" height="1200"></canvas>
+
+  <footer>
+    Split your own bill free at <a href="#">Ambagan</a> — no signup, works offline.
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- STATE ---------- */
+let state = {
+  people: [],       // {id, name, pwd}
+  items: [],        // {id, name, price, mode: 'all'|'custom'|'personal', people: [ids]}
+  eventName: "Bill Split"
+};
+
+const STORE_KEY = "ambagan_state_v1";
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && Array.isArray(parsed.people) && Array.isArray(parsed.items)){
+        state = parsed;
+      }
+    }
+  }catch(e){ console.warn("Could not load saved data", e); }
+}
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn("Could not save", e); }
+}
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+/* ---------- PEOPLE ---------- */
+function addPerson(){
+  const input = document.getElementById('personInput');
+  const name = input.value.trim();
+  if(!name) return;
+  state.people.push({id: uid(), name, pwd:false});
+  input.value = '';
+  saveState();
+  render();
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('personInput').addEventListener('keydown', e=>{
+    if(e.key === 'Enter'){ e.preventDefault(); addPerson(); }
+  });
+});
+function removePerson(id){
+  state.people = state.people.filter(p=>p.id!==id);
+  state.items.forEach(it=>{ it.people = it.people.filter(pid=>pid!==id); });
+  saveState();
+  render();
+}
+function togglePwd(id){
+  const p = state.people.find(p=>p.id===id);
+  if(p) p.pwd = !p.pwd;
+  saveState();
+  render();
+}
+
+/* ---------- ITEMS ---------- */
+function addItem(){
+  state.items.push({id: uid(), name:'', price:0, mode:'all', people:[]});
+  saveState();
+  render();
+}
+function removeItem(id){
+  state.items = state.items.filter(i=>i.id!==id);
+  saveState();
+  render();
+}
+function updateItem(id, field, value){
+  const it = state.items.find(i=>i.id===id);
+  if(!it) return;
+  if(field==='price'){ it.price = parseFloat(value)||0; }
+  else { it[field] = value; }
+  saveState();
+  render();
+}
+function setMode(id, mode){
+  const it = state.items.find(i=>i.id===id);
+  if(!it) return;
+  it.mode = mode;
+  if(mode==='all') it.people = state.people.map(p=>p.id);
+  if(mode==='personal') it.people = it.people.slice(0,1);
+  saveState();
+  render();
+}
+function togglePersonOnItem(itemId, personId){
+  const it = state.items.find(i=>i.id===itemId);
+  if(!it) return;
+  if(it.mode==='personal'){
+    it.people = [personId];
+  } else {
+    if(it.people.includes(personId)) it.people = it.people.filter(x=>x!==personId);
+    else it.people.push(personId);
+  }
+  saveState();
+  render();
+}
+
+/* ---------- CALCULATION ---------- */
+function calculate(){
+  const vatPct = parseFloat(document.getElementById('vatPct').value)||0;
+  const svcPct = parseFloat(document.getElementById('svcPct').value)||0;
+  const pwdEnabled = document.getElementById('pwdEnabled').checked;
+  const roundTo = parseFloat(document.getElementById('roundTo').value)||0;
+
+  const shares = {}; // personId -> subtotal (pre-tax, pre-discount) owed
+  state.people.forEach(p=> shares[p.id]=0);
+
+  state.items.forEach(it=>{
+    const involved = it.people.filter(pid=>state.people.some(p=>p.id===pid));
+    if(involved.length===0 || !it.price) return;
+    const each = it.price/involved.length;
+    involved.forEach(pid=> shares[pid]+=each);
+  });
+
+  // Build per-person breakdown with VAT/service/PWD discount
+  const breakdown = state.people.map(p=>{
+    const base = shares[p.id]||0;
+    let vatExempt = false, discount = 0, vatAmt = 0, netBase = base;
+
+    if(pwdEnabled && p.pwd){
+      // PWD/Senior: VAT-exempt + 20% discount on their portion (PH rule, net of VAT)
+      // Assume displayed item prices are VAT-inclusive; back out VAT first.
+      const vatInclusive = base;
+      const preVat = vatPct>0 ? vatInclusive/(1+vatPct/100) : vatInclusive;
+      discount = preVat*0.20;
+      netBase = preVat - discount;
+      vatAmt = 0;
+      vatExempt = true;
+    } else {
+      if(vatPct>0){
+        // assume base already VAT-inclusive as typical PH receipts; show vat portion for transparency
+        vatAmt = base - base/(1+vatPct/100);
+      }
+      netBase = base;
+    }
+
+    const svcAmt = netBase * (svcPct/100);
+    let total = netBase + svcAmt;
+    return {person:p, base, vatExempt, discount, vatAmt, svcAmt, total};
+  });
+
+  // Rounding pool
+  let poolTotal = 0;
+  if(roundTo>0){
+    breakdown.forEach(b=>{
+      const rounded = Math.ceil(b.total/roundTo)*roundTo;
+      poolTotal += (rounded - b.total);
+      b.rawTotal = b.total;
+      b.total = rounded;
+    });
+  } else {
+    breakdown.forEach(b=> b.rawTotal = b.total);
+  }
+
+  const grandTotal = breakdown.reduce((s,b)=>s+b.total,0);
+  const itemsTotal = state.items.reduce((s,i)=>s+(i.price||0),0);
+
+  return {breakdown, grandTotal, itemsTotal, poolTotal, roundTo, vatPct, svcPct, pwdEnabled};
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+  renderPeople();
+  renderItems();
+  renderPwdList();
+  renderReceipt();
+  saveState();
+}
+
+function renderPeople(){
+  const row = document.getElementById('peopleRow');
+  document.getElementById('peopleCount').textContent = state.people.length + (state.people.length===1?' person':' people');
+  if(state.people.length===0){
+    row.innerHTML = `<div class="empty-note" style="width:100%">Add everyone splitting the bill first.</div>`;
+    return;
+  }
+  row.innerHTML = state.people.map(p=>`
+    <div class="chip ${p.pwd?'pwd':''}">
+      ${escapeHtml(p.name)} ${p.pwd?'<span class="tag">PWD/SC</span>':''}
+      <button onclick="removePerson('${p.id}')" aria-label="Remove ${escapeHtml(p.name)}">✕</button>
+    </div>
+  `).join('');
+}
+
+function renderPwdList(){
+  const wrap = document.getElementById('pwdList');
+  const enabled = document.getElementById('pwdEnabled').checked;
+  if(!enabled || state.people.length===0){ wrap.innerHTML=''; return; }
+  wrap.innerHTML = `<div class="opt-sub" style="margin-bottom:6px;">Tap who has a PWD / Senior ID:</div>` +
+    state.people.map(p=>`<span class="pill ${p.pwd?'on':''}" onclick="togglePwd('${p.id}')">${escapeHtml(p.name)}</span>`).join('');
+}
+
+function renderItems(){
+  const list = document.getElementById('itemsList');
+  document.getElementById('itemCount').textContent = state.items.length + (state.items.length===1?' item':' items');
+  if(state.items.length===0){
+    list.innerHTML = `<div class="empty-note">No items yet. Add the first line from the receipt.</div>`;
+    return;
+  }
+  list.innerHTML = state.items.map(it=>{
+    const modeButtons = ['all','custom','personal'].map(m=>{
+      const label = m==='all'?'Shared by all':m==='custom'?'Shared by...':'Personal';
+      return `<button class="mode-btn ${it.mode===m?'active':''}" onclick="setMode('${it.id}','${m}')">${label}</button>`;
+    }).join('');
+
+    let peoplePicker = '';
+    if(state.people.length>0 && it.mode!=='all'){
+      peoplePicker = `<div class="people-select">` + state.people.map(p=>{
+        const on = it.people.includes(p.id);
+        return `<span class="pill ${on?'on':''}" onclick="togglePersonOnItem('${it.id}','${p.id}')">${escapeHtml(p.name)}</span>`;
+      }).join('') + `</div>`;
+    } else if(it.mode==='all'){
+      peoplePicker = `<div class="section-hint">Split evenly across everyone above.</div>`;
+    }
+
+    return `
+    <div class="item-card">
+      <div class="item-top">
+        <input type="text" placeholder="Item name" value="${escapeAttr(it.name)}" oninput="updateItem('${it.id}','name',this.value)">
+        <input type="number" class="item-price" placeholder="₱0.00" value="${it.price||''}" oninput="updateItem('${it.id}','price',this.value)">
+        <button class="item-remove" onclick="removeItem('${it.id}')" aria-label="Remove item">✕</button>
+      </div>
+      <div class="split-mode">${modeButtons}</div>
+      ${peoplePicker}
+    </div>`;
+  }).join('');
+}
+
+function renderReceipt(){
+  const calc = calculate();
+  const body = document.getElementById('receiptBody');
+  document.getElementById('receiptDate').textContent = new Date().toLocaleDateString('en-PH', {year:'numeric', month:'short', day:'numeric'});
+
+  if(state.people.length===0 || state.items.length===0){
+    body.innerHTML = `<div class="empty-note" style="font-family:'Sora',sans-serif;">Add people and items to see the split.</div>`;
+    return;
+  }
+
+  let html = '';
+  calc.breakdown.forEach(b=>{
+    html += `<div class="person-block">
+      <div class="person-name"><span>${escapeHtml(b.person.name)}${b.vatExempt?' 🏷':''}</span><span class="amt">₱${fmt(b.total)}</span></div>`;
+    if(b.discount>0){
+      html += `<div class="receipt-line sub"><span>PWD/Senior 20% off</span><span>-₱${fmt(b.discount)}</span></div>`;
+    }
+    if(b.svcAmt>0){
+      html += `<div class="receipt-line sub"><span>Service chg</span><span>+₱${fmt(b.svcAmt)}</span></div>`;
+    }
+    html += `</div>`;
+  });
+
+  html += `<hr>`;
+  html += `<div class="receipt-line"><span>Items subtotal</span><span>₱${fmt(calc.itemsTotal)}</span></div>`;
+  if(calc.poolTotal>0){
+    html += `<div class="receipt-line"><span>Rounding → tip pool</span><span>+₱${fmt(calc.poolTotal)}</span></div>`;
+  }
+  html += `<div class="grand-total"><span>Total</span><span>₱${fmt(calc.grandTotal)}</span></div>`;
+
+  const method = document.getElementById('payMethod').value;
+  const handle = document.getElementById('payHandle').value.trim();
+  if(handle){
+    html += `<hr><div class="receipt-line"><span>Send via ${escapeHtml(method)}</span><span>${escapeHtml(handle)}</span></div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function fmt(n){ return (Math.round(n*100)/100).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s){ return escapeHtml(s); }
+
+/* ---------- EXPORT: TEXT ---------- */
+function buildTextExport(){
+  const calc = calculate();
+  const method = document.getElementById('payMethod').value;
+  const handle = document.getElementById('payHandle').value.trim();
+  let lines = [];
+  lines.push(`🧾 AMBAGAN BREAKDOWN`);
+  lines.push(`--------------------------------`);
+  calc.breakdown.forEach(b=>{
+    lines.push(`• ${b.person.name}: ₱${fmt(b.total)}${b.vatExempt?' (PWD/SC)':''}`);
+  });
+  lines.push(`--------------------------------`);
+  lines.push(`Total: ₱${fmt(calc.grandTotal)}`);
+  if(handle){
+    lines.push(``);
+    lines.push(`Send via ${method}: ${handle}`);
+  }
+  return lines.join('\n');
+}
+
+function copyText(){
+  if(state.people.length===0 || state.items.length===0){
+    showToast('Add people and items first');
+    return;
+  }
+  const text = buildTextExport();
+  navigator.clipboard.writeText(text).then(()=>{
+    showToast('Copied! Paste it in your group chat.');
+  }).catch(()=>{
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); showToast('Copied!'); }
+    catch(e){ showToast('Could not copy — select and copy manually.'); }
+    document.body.removeChild(ta);
+  });
+}
+
+/* ---------- EXPORT: IMAGE ---------- */
+function drawReceiptImage(){
+  const calc = calculate();
+  const canvas = document.getElementById('exportCanvas');
+  const W = 900;
+  const rowH = 46;
+  const headerH = 190;
+  const footerH = 160;
+  const H = headerH + calc.breakdown.length*rowH + footerH + 40;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // background
+  ctx.fillStyle = '#FBF6EC';
+  ctx.fillRect(0,0,W,H);
+
+  // border
+  ctx.strokeStyle = '#DCD3C0';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(20,20,W-40,H-40);
+
+  let y = 70;
+  ctx.fillStyle = '#20261F';
+  ctx.textAlign = 'center';
+  ctx.font = '700 34px Sora, sans-serif';
+  ctx.fillText('Ambagan Breakdown', W/2, y);
+  y += 30;
+  ctx.font = '400 16px "IBM Plex Mono", monospace';
+  ctx.fillStyle = '#5B6259';
+  ctx.fillText(new Date().toLocaleDateString('en-PH', {year:'numeric', month:'long', day:'numeric'}), W/2, y);
+  y += 20;
+  ctx.strokeStyle = '#DCD3C0';
+  ctx.setLineDash([8,6]);
+  ctx.beginPath(); ctx.moveTo(60,y); ctx.lineTo(W-60,y); ctx.stroke();
+  ctx.setLineDash([]);
+  y += 44;
+
+  ctx.textAlign = 'left';
+  calc.breakdown.forEach(b=>{
+    ctx.font = '700 22px Sora, sans-serif';
+    ctx.fillStyle = '#20261F';
+    ctx.fillText(b.person.name + (b.vatExempt?'  🏷 PWD/SC':''), 60, y);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#2A4034';
+    ctx.fillText('₱' + fmt(b.total), W-60, y);
+    ctx.textAlign = 'left';
+    y += rowH;
+  });
+
+  ctx.strokeStyle = '#DCD3C0';
+  ctx.setLineDash([8,6]);
+  ctx.beginPath(); ctx.moveTo(60,y-14); ctx.lineTo(W-60,y-14); ctx.stroke();
+  ctx.setLineDash([]);
+  y += 24;
+
+  ctx.font = '800 30px Sora, sans-serif';
+  ctx.fillStyle = '#20261F';
+  ctx.fillText('Total', 60, y);
+  ctx.textAlign = 'right';
+  ctx.fillText('₱' + fmt(calc.grandTotal), W-60, y);
+  ctx.textAlign = 'left';
+  y += 46;
+
+  const method = document.getElementById('payMethod').value;
+  const handle = document.getElementById('payHandle').value.trim();
+  if(handle){
+    ctx.font = '600 20px "IBM Plex Mono", monospace';
+    ctx.fillStyle = '#5B6259';
+    ctx.fillText(`Send via ${method}: ${handle}`, 60, y);
+    y += 40;
+  }
+
+  ctx.font = '400 15px "IBM Plex Mono", monospace';
+  ctx.fillStyle = '#8A8F84';
+  ctx.textAlign = 'center';
+  ctx.fillText('Split your own bill free — Ambagan', W/2, H-40);
+
+  return canvas;
+}
+
+async function shareOrSave(){
+  if(state.people.length===0 || state.items.length===0){
+    showToast('Add people and items first');
+    return;
+  }
+  const canvas = drawReceiptImage();
+  canvas.toBlob(async (blob)=>{
+    if(!blob) return;
+    const file = new File([blob], 'ambagan-split.png', {type:'image/png'});
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({files:[file], title:'Ambagan Breakdown', text: buildTextExport()});
+        return;
+      }catch(e){ /* user cancelled or unsupported, fall through to download */ }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'ambagan-split.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Image saved to your device.');
+  }, 'image/png');
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(()=> t.classList.remove('show'), 2600);
+}
+
+/* ---------- INIT ---------- */
+loadState();
+document.addEventListener('DOMContentLoaded', ()=>{
+  render();
+});
+</script>
+</body>
+</html>
