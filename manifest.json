@@ -1,0 +1,14 @@
+{
+  "name": "Ambagan — Split the Bill",
+  "short_name": "Ambagan",
+  "description": "Split any Philippine bill the way you actually split it — shared items, PWD/Senior discounts, delivery fees, and GCash/Maya QR, offline and private.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F6F1E7",
+  "theme_color": "#245844",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

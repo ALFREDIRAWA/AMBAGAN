@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ambagan — Split the Bill</title>
+<meta name="description" content="Split any Philippine bill the way you actually split it — shared items, PWD/Senior discounts, delivery fees, and GCash/Maya QR, all offline and private.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ambagan — Split the Bill">
+<meta property="og:description" content="Free bill splitter for PH group meals: itemized splits, PWD/Senior discount math, GCash/Maya QR — works offline, no signup.">
+<meta property="og:image" content="./og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ambagan — Split the Bill">
+<meta name="twitter:description" content="Free, offline bill splitter built for Philippine group meals.">
+<meta name="twitter:image" content="./og-image.png">
+<meta name="theme-color" content="#245844">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -87,6 +100,11 @@ input:focus,select:focus{outline:3px solid color-mix(in srgb,var(--palay) 22%,tr
 .price-mode{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0 3px}
 .checkbox-line{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink-soft)}
 .checkbox-line input{accent-color:var(--palay)}
+.qr-row{display:flex;gap:12px;align-items:center;margin-top:12px}
+.qr-preview{width:64px;height:64px;flex-shrink:0;border:1.5px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ink-soft);overflow:hidden;background:var(--paper-2)}
+.qr-preview img{width:100%;height:100%;object-fit:contain;background:#fff}
+.qr-controls{flex:1;display:flex;flex-direction:column;gap:6px}
+.btn-linklike{background:none;border:none;color:var(--sili);font-size:11.5px;font-weight:700;cursor:pointer;padding:2px 0;text-align:left}
 .receipt-wrap{position:sticky;top:18px;margin-top:24px}
 .receipt{background:var(--white);border:1px solid var(--line);border-radius:20px 20px 0 0;padding:25px 22px 20px;font-family:'IBM Plex Mono',monospace;box-shadow:var(--shadow)}
 .receipt-title{text-align:center;font-size:18px;font-weight:800;margin:0 0 4px;font-family:'Sora',sans-serif;letter-spacing:-.02em}
@@ -123,6 +141,7 @@ footer{text-align:center;margin-top:34px;font-size:11px;color:var(--ink-soft)}fo
     <div class="header-tools">
       <div class="privacy-badge">🔒 LOCAL ONLY<br>saved on this device</div>
       <button class="icon-btn" id="themeBtn" type="button" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+      <button class="icon-btn" id="resetBtn" type="button" onclick="confirmReset()" aria-label="Start a new bill" title="Start a new bill">⟲</button>
     </div>
   </header>
 
@@ -173,6 +192,14 @@ footer{text-align:center;margin-top:34px;font-size:11px;color:var(--ink-soft)}fo
               <option value="0">Off</option><option value="5">Nearest ₱5</option><option value="10">Nearest ₱10</option><option value="20">Nearest ₱20</option>
             </select>
           </div>
+          <div class="opt-row">
+            <div><div class="opt-label">Delivery / convenience fee</div><div class="opt-sub">Fixed ₱ amount, split by each person's bill share.</div></div>
+            <input type="number" class="num-inline" id="deliveryFee" value="0" min="0" step="1" oninput="updateSettingsFromUI()">
+          </div>
+          <div class="opt-row">
+            <div><div class="opt-label">Overall discount / promo</div><div class="opt-sub">Fixed ₱ off the whole bill, split by share.</div></div>
+            <input type="number" class="num-inline" id="fixedDiscount" value="0" min="0" step="1" oninput="updateSettingsFromUI()">
+          </div>
         </div>
       </section>
 
@@ -185,6 +212,15 @@ footer{text-align:center;margin-top:34px;font-size:11px;color:var(--ink-soft)}fo
             </select>
             <input type="text" id="payHandle" placeholder="Name, number, or account" oninput="updateSettingsFromUI()" autocomplete="off">
           </div>
+          <div class="qr-row">
+            <div class="qr-preview" id="qrPreview" aria-hidden="true">No QR</div>
+            <div class="qr-controls">
+              <label class="btn btn-ghost btn-block" for="qrInput" style="text-align:center;cursor:pointer;">Upload GCash/Maya QR</label>
+              <input type="file" id="qrInput" accept="image/*" style="display:none" onchange="handleQrUpload(event)">
+              <button class="btn-linklike" id="qrRemoveBtn" onclick="removeQr()" style="display:none">Remove QR</button>
+            </div>
+          </div>
+          <div class="opt-sub" style="margin-top:8px">The QR is stored only on this device and printed on your exported receipt image.</div>
         </div>
       </section>
     </main>
@@ -216,15 +252,18 @@ let state = {
   people: [],       // {id, name, pwd}
   items: [],        // {id, name, price, mode: 'all'|'custom'|'personal', people: [ids]}
   eventName: "Bill Split",
-  settings: {vatPct:12, vatInclusive:true, svcPct:0, pwdEnabled:false, roundTo:0, payMethod:"GCash", payHandle:""}
+  settings: {vatPct:12, vatInclusive:true, svcPct:0, pwdEnabled:false, roundTo:0, payMethod:"GCash", payHandle:"", deliveryFee:0, fixedDiscount:0, qrDataUrl:""}
 };
 
-const STORE_KEY = "ambagan_state_v2";
+const APP_URL = location.href.split('#')[0].split('?')[0];
+const STORE_KEY = "ambagan_state_v3";
+const OLDER_STORE_KEY = "ambagan_state_v2";
 const OLD_STORE_KEY = "ambagan_state_v1";
 
 function loadState(){
   try{
     let raw = localStorage.getItem(STORE_KEY);
+    if(!raw) raw = localStorage.getItem(OLDER_STORE_KEY);
     if(!raw) raw = localStorage.getItem(OLD_STORE_KEY);
     if(raw){
       const parsed = JSON.parse(raw);
@@ -256,6 +295,8 @@ function updateSettingsFromUI(){
   state.settings.roundTo = parseFloat(document.getElementById('roundTo')?.value)||0;
   state.settings.payMethod = document.getElementById('payMethod')?.value || "GCash";
   state.settings.payHandle = (document.getElementById('payHandle')?.value||"").trim();
+  state.settings.deliveryFee = Math.max(0, parseFloat(document.getElementById('deliveryFee')?.value)||0);
+  state.settings.fixedDiscount = Math.max(0, parseFloat(document.getElementById('fixedDiscount')?.value)||0);
   saveState();
   renderReceipt();
   renderPwdList();
@@ -270,6 +311,62 @@ function syncSettingsUI(){
   document.getElementById('roundTo').value=String(x.roundTo??0);
   document.getElementById('payMethod').value=x.payMethod||"GCash";
   document.getElementById('payHandle').value=x.payHandle||"";
+  document.getElementById('deliveryFee').value=x.deliveryFee??0;
+  document.getElementById('fixedDiscount').value=x.fixedDiscount??0;
+  syncQrPreview();
+}
+function handleQrUpload(evt){
+  const file = evt.target.files?.[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Please choose an image file.'); return; }
+  if(file.size > 3*1024*1024){ showToast('Image is too large — please use one under 3MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    state.settings.qrDataUrl = reader.result;
+    saveState();
+    syncQrPreview();
+    renderReceipt();
+    showToast('QR saved on this device.');
+  };
+  reader.onerror = ()=> showToast('Could not read that image.');
+  reader.readAsDataURL(file);
+}
+function removeQr(){
+  state.settings.qrDataUrl = '';
+  document.getElementById('qrInput').value = '';
+  saveState();
+  syncQrPreview();
+  renderReceipt();
+}
+function syncQrPreview(){
+  const box = document.getElementById('qrPreview');
+  const removeBtn = document.getElementById('qrRemoveBtn');
+  const url = state.settings?.qrDataUrl;
+  if(url){
+    box.innerHTML = `<img src="${url}" alt="Payment QR code">`;
+    removeBtn.style.display = '';
+  } else {
+    box.textContent = 'No QR';
+    removeBtn.style.display = 'none';
+  }
+}
+function confirmReset(){
+  if(state.people.length===0 && state.items.length===0){ showToast('Already a clean slate.'); return; }
+  if(confirm('Start a new bill? This clears everyone, all items, and settings from this device.')){
+    try{
+      localStorage.removeItem(STORE_KEY);
+      localStorage.removeItem(OLDER_STORE_KEY);
+      localStorage.removeItem(OLD_STORE_KEY);
+    }catch(e){}
+    state = {
+      people: [], items: [], eventName: "Bill Split",
+      settings: {vatPct:12, vatInclusive:true, svcPct:0, pwdEnabled:false, roundTo:0, payMethod:"GCash", payHandle:"", deliveryFee:0, fixedDiscount:0, qrDataUrl:""}
+    };
+    syncSettingsUI();
+    syncQrPreview();
+    render();
+    showToast('Ready for a new bill.');
+  }
 }
 function toggleTheme(){
   const root=document.documentElement;
@@ -332,8 +429,14 @@ function updateItem(id, field, value){
 function setMode(id,mode){
   const it=state.items.find(i=>i.id===id);
   if(!it) return;
+  const wasCustomOrAll = it.mode==='all' || it.mode==='custom';
   it.mode=mode;
   if(mode==='all') it.people=[];
+  if(mode==='custom' && wasCustomOrAll && it.people.length===0){
+    // Default "Shared by..." to everyone, so the common case is
+    // "everyone except one or two people" rather than building from zero.
+    it.people = state.people.map(p=>p.id);
+  }
   if(mode==='personal') it.people=it.people.slice(0,1);
   saveState(); render();
 }
@@ -392,6 +495,19 @@ function calculate(){
     return {person:p,base,preVat,vatExempt:pwd,discount,vatAmt,svcAmt,total};
   });
 
+  // Fixed delivery fee and fixed overall discount: split proportionally by each
+  // person's raw item share (before tax/discount), falling back to an equal split
+  // if nobody has an item subtotal yet (e.g. delivery-only bill).
+  const deliveryFee = Math.max(0, parseFloat(settings.deliveryFee)||0);
+  const fixedDiscount = Math.max(0, parseFloat(settings.fixedDiscount)||0);
+  const baseSum = breakdown.reduce((s,b)=>s+b.base,0);
+  breakdown.forEach(b=>{
+    const shareFrac = baseSum>0 ? (b.base/baseSum) : (breakdown.length?1/breakdown.length:0);
+    b.deliveryShare = deliveryFee*shareFrac;
+    b.fixedDiscountShare = fixedDiscount*shareFrac;
+    b.total = Math.max(0, b.total + b.deliveryShare - b.fixedDiscountShare);
+  });
+
   let poolTotal=0;
   breakdown.forEach(b=>{
     b.rawTotal=b.total;
@@ -401,7 +517,7 @@ function calculate(){
   const assignedSubtotal=breakdown.reduce((s,b)=>s+b.base,0);
   const itemsTotal=state.items.reduce((s,i)=>s+(Number(i.price)||0),0);
   const unassigned=Math.max(0,itemsTotal-assignedSubtotal);
-  return {breakdown,grandTotal,itemsTotal,assignedSubtotal,unassigned,poolTotal,roundTo,vatPct,svcPct,pwdEnabled,vatInclusive:settings.vatInclusive};
+  return {breakdown,grandTotal,itemsTotal,assignedSubtotal,unassigned,poolTotal,roundTo,vatPct,svcPct,pwdEnabled,vatInclusive:settings.vatInclusive,deliveryFee,fixedDiscount};
 }
 
 /* ---------- RENDER ---------- */
@@ -487,14 +603,20 @@ function renderReceipt(){
     if(b.discount>0) html+=`<div class="receipt-line sub"><span>20% discount</span><span>−₱${fmt(b.discount)}</span></div>`;
     if(b.vatAmt>0) html+=`<div class="receipt-line sub"><span>VAT included</span><span>₱${fmt(b.vatAmt)}</span></div>`;
     if(b.svcAmt>0) html+=`<div class="receipt-line sub"><span>Service charge</span><span>+₱${fmt(b.svcAmt)}</span></div>`;
+    if(b.deliveryShare>0) html+=`<div class="receipt-line sub"><span>Delivery fee share</span><span>+₱${fmt(b.deliveryShare)}</span></div>`;
+    if(b.fixedDiscountShare>0) html+=`<div class="receipt-line sub"><span>Promo discount share</span><span>−₱${fmt(b.fixedDiscountShare)}</span></div>`;
     html+=`</div>`;
   });
   html+=`<hr><div class="receipt-line"><span>Bill items</span><span>₱${fmt(calc.itemsTotal)}</span></div>`;
   if(calc.unassigned>0.005) html+=`<div class="receipt-line sub"><span>Not assigned yet</span><span>−₱${fmt(calc.unassigned)}</span></div>`;
+  if(calc.deliveryFee>0) html+=`<div class="receipt-line"><span>Delivery fee</span><span>+₱${fmt(calc.deliveryFee)}</span></div>`;
+  if(calc.fixedDiscount>0) html+=`<div class="receipt-line"><span>Promo discount</span><span>−₱${fmt(calc.fixedDiscount)}</span></div>`;
   if(calc.poolTotal>0) html+=`<div class="receipt-line"><span>Rounding pool</span><span>+₱${fmt(calc.poolTotal)}</span></div>`;
   html+=`<div class="grand-total"><span>Total</span><span>₱${fmt(calc.grandTotal)}</span></div>`;
   const handle=(state.settings?.payHandle||'').trim(), method=state.settings?.payMethod||'GCash';
   if(handle) html+=`<div class="total-badge"><span>PAY VIA ${escapeHtml(method).toUpperCase()}</span><strong>${escapeHtml(handle)}</strong></div>`;
+  if(state.settings?.qrDataUrl) html+=`<div style="text-align:center;margin-top:10px"><img src="${state.settings.qrDataUrl}" alt="Payment QR" style="width:96px;height:96px;object-fit:contain;background:#fff;border-radius:8px;border:1px solid var(--line)"></div>`;
+  html+=`<div class="receipt-line sub" style="justify-content:center;margin-top:10px;opacity:.7"><span>Split at ${escapeHtml(APP_URL.replace(/^https?:\/\//,''))}</span></div>`;
   body.innerHTML=html;
 }
 
@@ -510,6 +632,7 @@ function buildTextExport(){
   lines.push('--------------------------------',`Total: ₱${fmt(calc.grandTotal)}`);
   if(calc.unassigned>0.005) lines.push(`⚠️ Unassigned items: ₱${fmt(calc.unassigned)}`);
   if(handle) lines.push('',`Send via ${method}: ${handle}`);
+  lines.push('', `Split your bill at: ${APP_URL}`);
   return lines.join('\n');
 }
 
@@ -533,9 +656,13 @@ function copyText(){
 }
 
 /* ---------- EXPORT: IMAGE ---------- */
-function drawReceiptImage(){
+async function drawReceiptImage(){
   const calc=calculate(), canvas=document.getElementById('exportCanvas'), W=1000;
-  const rows=Math.max(calc.breakdown.length,1), H=250+rows*62+220+(state.settings?.payHandle?55:0);
+  const qrUrl = state.settings?.qrDataUrl || '';
+  const qrBlockH = qrUrl ? 240 : 0;
+  const extraLines = (calc.deliveryFee>0?1:0) + (calc.fixedDiscount>0?1:0);
+  const rows=Math.max(calc.breakdown.length,1);
+  const H=250+rows*62+220+(state.settings?.payHandle?55:0)+extraLines*34+qrBlockH+40;
   canvas.width=W;canvas.height=H;
   const ctx=canvas.getContext('2d');
   ctx.fillStyle='#F6F1E7';ctx.fillRect(0,0,W,H);
@@ -554,18 +681,41 @@ function drawReceiptImage(){
     ctx.textAlign='right';ctx.fillStyle='#245844';ctx.fillText('₱'+fmt(b.total),W-70,y);ctx.textAlign='left';y+=62;
   });
   ctx.strokeStyle='#D8CFBE';ctx.setLineDash([9,7]);ctx.beginPath();ctx.moveTo(70,y-28);ctx.lineTo(W-70,y-28);ctx.stroke();ctx.setLineDash([]);
-  y+=12;ctx.fillStyle='#17221C';ctx.font='900 32px Sora, sans-serif';ctx.fillText('Total',70,y);
+  y+=12;
+  if(calc.deliveryFee>0){ctx.fillStyle='#687269';ctx.font='500 16px "IBM Plex Mono", monospace';ctx.fillText('Delivery fee',70,y);ctx.textAlign='right';ctx.fillText('+₱'+fmt(calc.deliveryFee),W-70,y);ctx.textAlign='left';y+=34;}
+  if(calc.fixedDiscount>0){ctx.fillStyle='#687269';ctx.font='500 16px "IBM Plex Mono", monospace';ctx.fillText('Promo discount',70,y);ctx.textAlign='right';ctx.fillText('−₱'+fmt(calc.fixedDiscount),W-70,y);ctx.textAlign='left';y+=34;}
+  ctx.fillStyle='#17221C';ctx.font='900 32px Sora, sans-serif';ctx.fillText('Total',70,y);
   ctx.textAlign='right';ctx.fillText('₱'+fmt(calc.grandTotal),W-70,y);ctx.textAlign='left';y+=50;
   if(calc.unassigned>0.005){ctx.fillStyle='#B94316';ctx.font='600 16px "IBM Plex Mono", monospace';ctx.fillText('Unassigned items: ₱'+fmt(calc.unassigned),70,y);y+=30;}
   const handle=(state.settings?.payHandle||'').trim(),method=state.settings?.payMethod||'GCash';
   if(handle){ctx.fillStyle='#687269';ctx.font='600 17px "IBM Plex Mono", monospace';ctx.fillText(`Send via ${method}: ${handle}`,70,y);y+=35;}
-  ctx.fillStyle='#8A9188';ctx.font='400 14px "IBM Plex Mono", monospace';ctx.textAlign='center';ctx.fillText('Local-first bill splitting · Ambagan',W/2,H-48);
+
+  if(qrUrl){
+    try{
+      const img = await new Promise((resolve,reject)=>{
+        const im = new Image();
+        im.onload = ()=>resolve(im);
+        im.onerror = reject;
+        im.src = qrUrl;
+      });
+      const qrSize = 200;
+      const qx = (W-qrSize)/2;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(qx-10, y+10, qrSize+20, qrSize+20);
+      ctx.strokeStyle = '#D8CFBE'; ctx.lineWidth=2; ctx.strokeRect(qx-10, y+10, qrSize+20, qrSize+20);
+      ctx.drawImage(img, qx, y+20, qrSize, qrSize);
+      y += qrSize+50;
+    }catch(e){ /* QR failed to decode — skip it rather than break export */ }
+  }
+
+  ctx.fillStyle='#8A9188';ctx.font='600 15px "IBM Plex Mono", monospace';ctx.textAlign='center';
+  ctx.fillText('Split your bill at: '+APP_URL.replace(/^https?:\/\//,''),W/2,H-48);
   return canvas;
 }
 
 async function getReceiptBlob(){
   if(document.fonts?.ready) await document.fonts.ready;
-  const canvas=drawReceiptImage();
+  const canvas=await drawReceiptImage();
   return await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
 }
 
@@ -630,6 +780,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   render();
 });
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{
+      // Offline caching is a bonus, not a requirement — fail silently if unsupported/blocked.
+    });
+  });
+}
 </script>
 </body>
 </html>
